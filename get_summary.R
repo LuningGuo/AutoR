@@ -1,9 +1,11 @@
+# numeric、integer类变量处理函数
 getNumeric = function(x) {
   detail = '单位：'
   range = paste0('[', min(x), ', ', max(x), ']', collapse = '')
   return(c(detail, range))
 }
 
+# factor类变量处理函数
 getFactor = function(x) {
   categories = levels(x)
   detail = paste0('定性变量：共', length(categories), '个水平', collapse = '')
@@ -15,18 +17,21 @@ getFactor = function(x) {
   return(c(detail, range))
 }
 
+# character类变量处理函数
 getCharacter = function(x) {
   detail = '字符型变量'
   range = '-'
   return(c(detail, range))
 }
 
+# Date类变量处理函数
 getDate = function(x) {
   detail = '日期型变量'
   range = paste0('[', min(x, na.rm = T), ', ', max(x, na.rm = T), ']', collapse = '')
   return(c(detail, range))
 }
 
+# 根据变量类别选取相应的函数
 switcher = function(variable, variable_type) {
   switch (variable_type,
           'numeric' = getNumeric(variable),
@@ -36,21 +41,16 @@ switcher = function(variable, variable_type) {
           'Date' = getDate(variable))
 }
 
-
 # 提取变量说明表
 get_summary = function(data) {
-  summary = data.frame()
+  summary_all = data.frame()
   for (i in 1:ncol(data)) {
-    type = class(data[,i])
-    detail = switcher(data[,i], type)[1]
-    range = switcher(data[,i], type)[2]
-    name = colnames(data)[i]
-    sum = data.frame(
-      变量名称 = name,
-      详细说明 = detail,
-      取值范围 = range
+    var_summary = data.frame(
+      变量名称 = colnames(data)[i],
+      详细说明 = switcher(data[,i], type = class(data[,i]))[1],
+      取值范围 = switcher(data[,i], type = class(data[,i]))[2]
     )
-    summary = rbind(summary, sum)
+    summary = rbind(summary_all, var_summary)
   }
-  return(summary)
+  return(summary_all)
 }
